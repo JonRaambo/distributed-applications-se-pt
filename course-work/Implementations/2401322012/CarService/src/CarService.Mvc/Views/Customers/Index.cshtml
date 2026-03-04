@@ -1,0 +1,81 @@
+@model CarService.Mvc.ViewModels.PagedResultVm<CarService.Mvc.Models.Customer>
+@{
+    var phone = (string?)ViewBag.Phone;
+    var lastName = (string?)ViewBag.LastName;
+    int totalPages = (int)Math.Ceiling((double)Model.TotalCount / Math.Max(1, Model.PageSize));
+}
+
+<div class="d-flex justify-content-between align-items-center">
+    <h3>Customers</h3>
+    <a class="btn btn-success" asp-action="Create">Create</a>
+</div>
+
+<form method="get" class="row g-2 mt-2">
+    <div class="col-md-3">
+        <input class="form-control" name="phone" value="@phone" placeholder="Search phone..." />
+    </div>
+    <div class="col-md-3">
+        <input class="form-control" name="lastName" value="@lastName" placeholder="Search last name..." />
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-primary w-100">Search</button>
+    </div>
+    <div class="col-md-2">
+        <a class="btn btn-outline-secondary w-100" asp-action="Index">Clear</a>
+    </div>
+</form>
+
+<table class="table table-striped mt-3">
+    <thead>
+        <tr>
+            <th>Id</th><th>First</th><th>Last</th><th>Phone</th><th>Email</th><th>Status</th><th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model.Items)
+        {
+            <tr>
+                <td>@c.Id</td>
+                <td>@c.FirstName</td>
+                <td>@c.LastName</td>
+                <td>@c.Phone</td>
+                <td>@c.Email</td>
+                <td>
+                    @if (c.IsActive)
+
+                    {
+
+                        <span>Active</span>
+
+                    }
+
+                    else
+                    {
+                        <span>Inactive</span>
+                    }
+
+                </td>
+
+            <td class="text-end">
+                <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@c.Id">Edit</a>
+                <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@c.Id">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@if (totalPages > 1)
+{
+    <nav>
+        <ul class="pagination">
+            @for (int p = 1; p <= totalPages; p++)
+            {
+                var active = p == Model.Page ? "active" : "";
+                <li class="page-item @active">
+                    <a class="page-link" href="@Url.Action("Index", new { phone, lastName, page = p, pageSize = Model.PageSize })">@p</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

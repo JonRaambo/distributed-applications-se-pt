@@ -1,0 +1,28 @@
+@model CarService.Mvc.ViewModels.LoginVm
+
+<h3>Login</h3>
+<div class="alert alert-info">
+    Demo users: <b>admin/admin123</b>
+</div>
+
+<form asp-action="Login" method="post" class="col-md-4">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Username" class="form-label"></label>
+        <input asp-for="Username" class="form-control" />
+        <span asp-validation-for="Username" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Password" class="form-label"></label>
+        <input asp-for="Password" type="password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <button class="btn btn-primary">Login</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

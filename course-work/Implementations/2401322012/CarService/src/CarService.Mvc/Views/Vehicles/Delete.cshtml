@@ -1,0 +1,13 @@
+@model CarService.Mvc.Models.Vehicle
+
+<h3>Delete Vehicle</h3>
+
+<div class="alert alert-warning">
+    Сигурен ли си, че искаш да изтриеш автомобил <b>@Model.PlateNumber</b>?
+</div>
+
+<form asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <button class="btn btn-danger">Delete</button>
+    <a class="btn btn-secondary" asp-action="Index">Cancel</a>
+</form>

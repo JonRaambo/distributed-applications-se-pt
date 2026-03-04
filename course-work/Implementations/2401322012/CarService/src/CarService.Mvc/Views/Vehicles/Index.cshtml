@@ -1,0 +1,82 @@
+@model CarService.Mvc.ViewModels.PagedResultVm<CarService.Mvc.Models.Vehicle>
+@using CarService.Mvc.Models
+
+@{
+    Layout = "_Layout";
+
+    var plate = (string?)ViewBag.PlateNumber;
+    var brand = (string?)ViewBag.Brand;
+    var customerId = (int?)ViewBag.CustomerId;
+
+    var customers = ViewBag.Customers as List<Customer> ?? new List<Customer>();
+    var customerNames = customers.ToDictionary(c => c.Id, c => $"{c.FirstName} {c.LastName}");
+
+    int totalPages = (int)Math.Ceiling((double)Model.TotalCount / Math.Max(1, Model.PageSize));
+}
+
+<div class="d-flex justify-content-between align-items-center">
+    <h3>Vehicles</h3>
+    <a class="btn btn-success" asp-action="Create">Create</a>
+</div>
+
+<form method="get" class="row g-2 mt-2">
+    <div class="col-md-3">
+        <input class="form-control" name="plateNumber" value="@plate" placeholder="Search plate..." />
+    </div>
+    <div class="col-md-3">
+        <input class="form-control" name="brand" value="@brand" placeholder="Search brand..." />
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-primary w-100">Search</button>
+    </div>
+    <div class="col-md-2">
+        <a class="btn btn-outline-secondary w-100" asp-action="Index">Clear</a>
+    </div>
+</form>
+
+<table class="table table-striped mt-3">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Customer</th>
+            <th>Plate</th>
+            <th>Brand</th>
+            <th>Model</th>
+            <th>Year</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var v in Model.Items)
+        {
+            <tr>
+                <td>@v.Id</td>
+                <td>@(customerNames.TryGetValue(v.CustomerId, out var name) ? name : $"#{v.CustomerId}")</td>
+                <td>@v.PlateNumber</td>
+                <td>@v.Brand</td>
+                <td>@v.Model</td>
+                <td>@v.Year</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@v.Id">Edit</a>
+                    <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@v.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (totalPages > 1)
+{
+    <nav>
+        <ul class="pagination">
+            @for (int p = 1; p <= totalPages; p++)
+            {
+                var active = p == Model.Page ? "active" : "";
+                <li class="page-item @active">
+                    <a class="page-link"
+                       href="@Url.Action("Index", new { plateNumber = plate, brand, customerId, page = p, pageSize = Model.PageSize })">@p</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

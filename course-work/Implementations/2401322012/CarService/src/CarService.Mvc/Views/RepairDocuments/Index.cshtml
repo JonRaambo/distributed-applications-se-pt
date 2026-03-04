@@ -1,0 +1,95 @@
+@model CarService.Mvc.ViewModels.PagedResultVm<CarService.Mvc.Models.RepairDocument>
+@{
+    int repairId = (int)ViewBag.RepairId;
+    var fileName = (string?)ViewBag.FileName;
+    int totalPages = (int)Math.Ceiling((double)Model.TotalCount / Math.Max(1, Model.PageSize));
+}
+
+<div class="d-flex justify-content-between align-items-center">
+    <h3>Repair Documents (RepairId: @repairId)</h3>
+    <a class="btn btn-secondary" asp-controller="Repairs" asp-action="Index">Back</a>
+</div>
+
+
+<hr />
+
+<h5>Upload</h5>
+<form asp-action="Upload" method="post" enctype="multipart/form-data" class="row g-2">
+    <input type="hidden" name="repairId" value="@repairId" />
+    <div class="col-md-5"><input type="file" name="file" class="form-control" /></div>
+    <div class="col-md-5"><input type="text" name="description" class="form-control" placeholder="Description (optional)..." /></div>
+    <div class="col-md-2"><button class="btn btn-success w-100">Upload</button></div>
+</form>
+
+<table class="table table-striped mt-3">
+    <thead>
+    <tr>
+            <th>Id</th>
+            <th>File</th>
+            <th>Uploaded</th>
+            <th>Description</th>
+            <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var d in Model.Items)
+    {
+        <tr>
+            <td>@d.Id</td>
+                <td>
+                    @if (!string.IsNullOrWhiteSpace(d.ContentType) && d.ContentType.StartsWith("image/"))
+                    {
+                        <img src="@Url.Action("Preview", "RepairDocuments", new { repairId = repairId, documentId = d.Id })"
+                             style="max-height:60px; cursor:pointer; border:1px solid #ddd; padding:2px; border-radius:6px;"
+                             onclick="openImageModal(this.src)" />
+                    }
+                    else
+                    {
+                        <span>-</span>
+                    }
+                </td>
+                <td>@d.UploadedAt</td>
+            <td>@d.Description</td>
+            <td class="text-end">
+                <a class="btn btn-sm btn-outline-primary" asp-action="Download" asp-route-repairId="@repairId" asp-route-documentId="@d.Id">Download</a>
+                <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-repairId="@repairId" asp-route-documentId="@d.Id">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@if (totalPages > 1)
+{
+    <nav>
+        <ul class="pagination">
+            @for (int p = 1; p <= totalPages; p++)
+            {
+                var active = p == Model.Page ? "active" : "";
+                <li class="page-item @active">
+                    <a class="page-link" href="@Url.Action("Index", new { repairId, fileName, page = p, pageSize = Model.PageSize })">@p</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+<div class="modal fade" id="imageModal" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content bg-dark">
+            <div class="modal-header border-0">
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body d-flex justify-content-center align-items-center">
+                <img id="modalImage" style="max-width:100%; max-height:100%;" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openImageModal(src) {
+        document.getElementById("modalImage").src = src;
+        var modal = new bootstrap.Modal(document.getElementById('imageModal'));
+        modal.show();
+    }
+</script>
